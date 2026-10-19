@@ -61,7 +61,7 @@ def _find_headings(text: str) -> list[str]:
     headings = []
     for line in text.splitlines():
         line = line.strip()
-        if line and len(line) <= 80 and not line.endswith(".") and HEADING_RE.match(line):
+        if line and len(line) <= 80 and (not line.endswith(".") or line.isupper()) and HEADING_RE.match(line):
             headings.append(line)
     return headings
 
