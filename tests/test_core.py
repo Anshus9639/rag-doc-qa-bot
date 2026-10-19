@@ -9,6 +9,7 @@ from src.pipeline import RAGPipeline
 from src.prompts import NOT_FOUND_MESSAGE, format_context
 from src.retriever import RetrievalResult
 from src.vector_store import VectorStore
+from src.pipeline import RAGPipeline, _build_citations
 
 
 def make_chunk(
@@ -309,3 +310,37 @@ def test_pipeline_refuses_when_retrieval_is_below_threshold(monkeypatch):
     assert result.answered is False
     assert result.text == NOT_FOUND_MESSAGE
     assert result.note == "best chunk is below the similarity threshold"
+
+
+def test_citations_match_explicit_answer_markers():
+    first = make_chunk(
+        text="The tenant must provide advance notice.",
+        source="first.pdf",
+        page=1,
+        chunk_id="first.pdf#0",
+        section="Notice",
+    )
+
+    second = make_chunk(
+        text="The contractor must obtain written authorization.",
+        source="second.pdf",
+        page=4,
+        chunk_id="second.pdf#0",
+        section="4.6 Authorization",
+    )
+
+    hits = [
+        (first, 0.91),
+        (second, 0.82),
+    ]
+
+    citations = _build_citations(
+        "The contractor must obtain written authorization [2].",
+        hits,
+    )
+
+    assert len(citations) == 1
+    assert citations[0].number == 2
+    assert citations[0].source == "second.pdf"
+    assert citations[0].page == 4
+    assert citations[0].section == "4.6 Authorization"

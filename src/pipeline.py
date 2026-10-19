@@ -253,18 +253,45 @@ def _build_citations(
     text: str,
     hits: list[tuple[Chunk, float]],
 ) -> list[Citation]:
-    """Rank excerpts by word overlap; model citation markers are a fallback."""
+    """Map explicit answer citations to their actual retrieved chunks.
+
+    If the answer has no valid citation markers, fall back to lexical
+    overlap to choose relevant evidence chunks.
+    """
     if not hits:
         return []
 
+    # First, honor explicit citation markers such as [2] or [1][2].
+    cited_numbers = sorted(
+        {
+            int(number)
+            for number in CITATION_RE.findall(text)
+            if 1 <= int(number) <= len(hits)
+        }
+    )
+
+    if cited_numbers:
+        return [
+            _make_citation(
+                number,
+                hits[number - 1][0],
+                hits[number - 1][1],
+            )
+            for number in cited_numbers
+        ]
+
+    # Fallback only when the answer contains no valid citation markers.
     answer_words = set(
-        WORD_RE.findall(CITATION_RE.sub(" ", text).lower())
+        WORD_RE.findall(text.lower())
     )
     scored = []
 
     for number, (chunk, score) in enumerate(hits, start=1):
         chunk_words = set(WORD_RE.findall(chunk.text.lower()))
-        overlap = len(answer_words & chunk_words) / max(len(answer_words), 1)
+        overlap = (
+            len(answer_words & chunk_words)
+            / max(len(answer_words), 1)
+        )
         scored.append((overlap, number, chunk, score))
 
     best_overlap = max(item[0] for item in scored)
@@ -276,25 +303,19 @@ def _build_citations(
             for item in sorted(scored, key=lambda item: -item[0])
             if item[0] >= cutoff
         ]
+
         return [
             _make_citation(number, chunk, score)
             for _overlap, number, chunk, score in picked
         ]
 
-    # If no words overlap (e.g. the answer is just a number), use valid
-    # model markers if available; otherwise cite the highest-ranked chunk.
-    cited = sorted(
-        {
-            int(number)
-            for number in CITATION_RE.findall(text)
-            if 1 <= int(number) <= len(hits)
-        }
-    )
-    numbers = cited or [1]
-
+    # If no useful word overlap exists, show the top retrieved chunk.
     return [
-        _make_citation(number, hits[number - 1][0], hits[number - 1][1])
-        for number in numbers
+        _make_citation(
+            1,
+            hits[0][0],
+            hits[0][1],
+        )
     ]
 
 
