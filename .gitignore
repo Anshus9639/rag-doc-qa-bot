@@ -1,9 +1,13 @@
 venv/
 __pycache__/
-*.pyc
+*.py[cod]
 .env
+.streamlit/secrets.toml
 .vscode/
+.pytest_cache/
+
 data/uploads/*
-data/index/*
 !data/uploads/.gitkeep
+
+data/index/*
 !data/index/.gitkeep

@@ -344,3 +344,30 @@ def test_citations_match_explicit_answer_markers():
     assert citations[0].source == "second.pdf"
     assert citations[0].page == 4
     assert citations[0].section == "4.6 Authorization"
+
+def test_citation_snippet_focuses_on_relevant_evidence():
+    boilerplate = (
+        "Industries Department, Haryana. "
+        "Template regarding Commercial Contracts. "
+    )
+    filler = "General contract template information. " * 20
+    evidence = (
+        "The First Party does not give guarantee any volume of work "
+        "at any time during the period of agreement."
+    )
+
+    chunk = make_chunk(
+        text=boilerplate + filler + evidence,
+        source="agreement.pdf",
+        page=3,
+        section="4. RIGHTS & OBLIGATIONS",
+    )
+
+    citations = _build_citations(
+        "No. The agreement does not guarantee any volume of work [1].",
+        [(chunk, 0.9)],
+    )
+
+    assert len(citations) == 1
+    assert "volume of work" in citations[0].snippet.lower()
+    assert "does not give guarantee" in citations[0].snippet.lower()

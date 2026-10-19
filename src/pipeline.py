@@ -236,9 +236,63 @@ def _make_citation(
     number: int,
     chunk: Chunk,
     score: float,
+    answer_text: str = "",
 ) -> Citation:
-    """Build a citation using actual retrieved chunk metadata."""
-    snippet = chunk.text[:200].replace("\n", " ")
+    """Build a citation with a snippet focused on the answer's evidence."""
+    normalized = re.sub(r"\s+", " ", chunk.text).strip()
+    limit = 400
+    start = 0
+
+    if len(normalized) > limit:
+        answer_terms = {
+            word
+            for word in WORD_RE.findall(
+                CITATION_RE.sub(" ", answer_text).lower()
+            )
+            if len(word) >= 3 and word not in SEARCH_STOPWORDS
+        }
+
+        lower_text = normalized.lower()
+        positions = []
+
+        for term in answer_terms:
+            positions.extend(
+                match.start()
+                for match in re.finditer(
+                    rf"\b{re.escape(term)}\b",
+                    lower_text,
+                )
+            )
+
+        if positions:
+            max_start = len(normalized) - limit
+            candidate_starts = {
+                max(0, min(position - 100, max_start))
+                for position in positions
+            }
+
+            def window_score(window_start: int) -> tuple[int, int]:
+                window = lower_text[window_start:window_start + limit]
+                terms_found = sum(
+                    bool(re.search(rf"\b{re.escape(term)}\b", window))
+                    for term in answer_terms
+                )
+                occurrences = sum(
+                    window_start <= position < window_start + limit
+                    for position in positions
+                )
+                return terms_found, occurrences
+
+            start = max(candidate_starts, key=window_score)
+
+    end = min(start + limit, len(normalized))
+    snippet = normalized[start:end]
+
+    if start > 0:
+        snippet = "…" + snippet
+    if end < len(normalized):
+        snippet += "…"
+
     return Citation(
         number=number,
         source=chunk.source,
@@ -253,15 +307,11 @@ def _build_citations(
     text: str,
     hits: list[tuple[Chunk, float]],
 ) -> list[Citation]:
-    """Map explicit answer citations to their actual retrieved chunks.
-
-    If the answer has no valid citation markers, fall back to lexical
-    overlap to choose relevant evidence chunks.
-    """
+    """Map citations to retrieved chunks and prefer relevant evidence."""
     if not hits:
         return []
 
-    # First, honor explicit citation markers such as [2] or [1][2].
+    # Honor explicit, valid answer markers first.
     cited_numbers = sorted(
         {
             int(number)
@@ -276,22 +326,20 @@ def _build_citations(
                 number,
                 hits[number - 1][0],
                 hits[number - 1][1],
+                answer_text=text,
             )
             for number in cited_numbers
         ]
 
-    # Fallback only when the answer contains no valid citation markers.
+    # Without a valid marker, select chunks by lexical overlap.
     answer_words = set(
-        WORD_RE.findall(text.lower())
+        WORD_RE.findall(CITATION_RE.sub(" ", text).lower())
     )
     scored = []
 
     for number, (chunk, score) in enumerate(hits, start=1):
         chunk_words = set(WORD_RE.findall(chunk.text.lower()))
-        overlap = (
-            len(answer_words & chunk_words)
-            / max(len(answer_words), 1)
-        )
+        overlap = len(answer_words & chunk_words) / max(len(answer_words), 1)
         scored.append((overlap, number, chunk, score))
 
     best_overlap = max(item[0] for item in scored)
@@ -305,19 +353,24 @@ def _build_citations(
         ]
 
         return [
-            _make_citation(number, chunk, score)
+            _make_citation(
+                number,
+                chunk,
+                score,
+                answer_text=text,
+            )
             for _overlap, number, chunk, score in picked
         ]
 
-    # If no useful word overlap exists, show the top retrieved chunk.
+    # Last resort: cite the top retrieved chunk, without claiming certainty.
     return [
         _make_citation(
             1,
             hits[0][0],
             hits[0][1],
+            answer_text=text,
         )
     ]
-
 
 class RAGPipeline:
     def __init__(self) -> None:
