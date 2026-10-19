@@ -1,0 +1,56 @@
+[
+  {
+    "id": "work_volume",
+    "source": "17011661561913.Agreement between owners  and labour contractor  for  supply of labour.pdf",
+    "question": "Does this agreement guarantee a minimum volume of work to the Second Party?",
+    "required_groups": [
+      ["no", "not guarantee", "without guarantee"],
+      ["volume of work", "minimum volume", "minimum work"]
+    ],
+    "should_answer": true
+  },
+  {
+    "id": "other_contractors",
+    "source": "17011661561913.Agreement between owners  and labour contractor  for  supply of labour.pdf",
+    "question": "Can the First Party distribute work among other contractors?",
+    "required_groups": [
+      ["yes", "may", "can"],
+      ["other contractors", "other contractor"]
+    ],
+    "should_answer": true
+  },
+  {
+    "id": "workforce_provision",
+    "source": "17011661561913.Agreement between owners  and labour contractor  for  supply of labour.pdf",
+    "question": "What does the Second Party agree to provide under the Offer and Acceptance clause?",
+    "required_groups": [
+      ["workforce", "work force", "workers", "labour", "labor"],
+      ["assigned", "jobs", "job"]
+    ],
+    "should_answer": true
+  },
+  {
+    "id": "court_jurisdiction",
+    "source": "17011661561913.Agreement between owners  and labour contractor  for  supply of labour.pdf",
+    "question": "According to the jurisdiction clause, which state's courts have jurisdiction?",
+    "required_groups": [
+      ["haryana"],
+      ["court", "courts", "jurisdiction"]
+    ],
+    "should_answer": true
+  },
+  {
+    "id": "missing_salary",
+    "source": "17011661561913.Agreement between owners  and labour contractor  for  supply of labour.pdf",
+    "question": "What exact monthly salary is specified for each worker?",
+    "required_groups": [],
+    "should_answer": false
+  },
+  {
+    "id": "missing_termination_notice",
+    "source": "17011661561913.Agreement between owners  and labour contractor  for  supply of labour.pdf",
+    "question": "What exact notice period in months is specified for termination under Clause 18?",
+    "required_groups": [],
+    "should_answer": false
+  }
+]
