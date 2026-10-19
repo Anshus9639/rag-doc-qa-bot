@@ -7,6 +7,10 @@
       ["no", "not guarantee", "without guarantee"],
       ["volume of work", "minimum volume", "minimum work"]
     ],
+    "evidence_groups": [
+      ["does not give guarantee", "does not guarantee","does not give guarant", "no guarantee"],
+      ["volume of work"]
+    ],
     "should_answer": true
   },
   {
@@ -15,6 +19,10 @@
     "question": "Can the First Party distribute work among other contractors?",
     "required_groups": [
       ["yes", "may", "can"],
+      ["other contractors", "other contractor"]
+    ],
+    "evidence_groups": [
+      ["distribute work", "distribute the work", "distribution of work"],
       ["other contractors", "other contractor"]
     ],
     "should_answer": true
@@ -27,6 +35,10 @@
       ["workforce", "work force", "workers", "labour", "labor"],
       ["assigned", "jobs", "job"]
     ],
+    "evidence_groups": [
+      ["workforce", "work force"],
+      ["job assigned", "jobs assigned", "jobs assigned by first party", "assigned by first party"]
+    ],
     "should_answer": true
   },
   {
@@ -37,6 +49,10 @@
       ["haryana"],
       ["court", "courts", "jurisdiction"]
     ],
+    "evidence_groups": [
+      ["haryana"],
+      ["courts of law", "court", "jurisdiction"]
+    ],
     "should_answer": true
   },
   {
@@ -44,6 +60,7 @@
     "source": "17011661561913.Agreement between owners  and labour contractor  for  supply of labour.pdf",
     "question": "What exact monthly salary is specified for each worker?",
     "required_groups": [],
+    "evidence_groups": [],
     "should_answer": false
   },
   {
@@ -51,6 +68,7 @@
     "source": "17011661561913.Agreement between owners  and labour contractor  for  supply of labour.pdf",
     "question": "What exact notice period in months is specified for termination under Clause 18?",
     "required_groups": [],
+    "evidence_groups": [],
     "should_answer": false
   }
 ]
