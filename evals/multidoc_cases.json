@@ -1,0 +1,270 @@
+[
+  {
+    "id": "remote_work_days",
+    "question": "How many days per week may employees work remotely, and what approval is required?",
+    "expected_source": "remote_work_policy.txt",
+    "expected_section_contains": "1. Remote Work Eligibility",
+    "should_answer": true,
+    "required_groups": [
+      [
+        "two days",
+        "2 days"
+      ],
+      [
+        "manager approval",
+        "written approval",
+        "approval from their direct manager"
+      ]
+    ],
+    "evidence_groups": [
+      [
+        "two days per calendar week",
+        "up to two days"
+      ],
+      [
+        "written approval",
+        "direct manager"
+      ]
+    ]
+  },
+  {
+    "id": "annual_leave_days",
+    "question": "How many paid annual leave days does a full-time employee receive each calendar year?",
+    "expected_source": "annual_leave_policy.txt",
+    "expected_section_contains": "1. Annual Leave Entitlement",
+    "should_answer": true,
+    "required_groups": [
+      [
+        "18 paid annual leave days",
+        "18 days",
+        "eighteen days"
+      ],
+      [
+        "calendar year",
+        "per year"
+      ]
+    ],
+    "evidence_groups": [
+      [
+        "18 paid annual leave days",
+        "18 days"
+      ],
+      [
+        "calendar year"
+      ]
+    ]
+  },
+  {
+    "id": "password_requirement",
+    "question": "What minimum number of characters must a password or passphrase contain, and is multi-factor authentication required?",
+    "expected_source": "password_access_policy.txt",
+    "expected_section_contains": "1. Password and Multi-Factor Authentication",
+    "should_answer": true,
+    "required_groups": [
+      [
+        "14 characters",
+        "fourteen characters"
+      ],
+      [
+        "multi-factor authentication",
+        "multifactor authentication",
+        "mfa"
+      ]
+    ],
+    "evidence_groups": [
+      [
+        "14 characters"
+      ],
+      [
+        "multi-factor authentication",
+        "mfa"
+      ]
+    ]
+  },
+  {
+    "id": "customer_data_and_incidents",
+    "question": "May customer records be copied to personal devices, and how quickly must suspected data incidents be reported?",
+    "expected_source": "data_handling_policy.txt",
+    "expected_section_contains": "1. Customer Data Handling",
+    "should_answer": true,
+    "required_groups": [
+      [
+        "must not be copied",
+        "not permitted",
+        "must not",
+        "may not be copied"
+      ],
+      [
+        "within 1 hour",
+        "within one hour",
+        "1 hour"
+      ]
+    ],
+    "evidence_groups": [
+      [
+        "must not be copied",
+        "not be copied"
+      ],
+      [
+        "within 1 hour",
+        "1 hour"
+      ]
+    ]
+  },
+  {
+    "id": "hotel_reimbursement_cap",
+    "question": "What is the maximum reimbursable hotel cost per night for domestic travel, and are receipts required?",
+    "expected_source": "travel_expense_policy.txt",
+    "expected_section_contains": "1. Domestic Hotel and Meal Reimbursement",
+    "should_answer": true,
+    "required_groups": [
+      [
+        "inr 6,000",
+        "₹6,000",
+        "6000"
+      ],
+      [
+        "receipt"
+      ]
+    ],
+    "evidence_groups": [
+      [
+        "inr 6,000",
+        "₹6,000",
+        "6000"
+      ],
+      [
+        "receipts are required",
+        "itemized receipts"
+      ]
+    ]
+  },
+  {
+    "id": "flight_advance_booking",
+    "question": "How far in advance must business flights be booked, and which cabin class is required?",
+    "expected_source": "flight_booking_policy.txt",
+    "expected_section_contains": "1. Economy Flight Booking",
+    "should_answer": true,
+    "required_groups": [
+      [
+        "7 calendar days",
+        "7 days",
+        "seven days"
+      ],
+      [
+        "economy"
+      ]
+    ],
+    "evidence_groups": [
+      [
+        "7 calendar days",
+        "7 days"
+      ],
+      [
+        "economy class"
+      ]
+    ]
+  },
+  {
+    "id": "critical_incident_targets",
+    "question": "For a critical incident, what are the vendor acknowledgement and restoration targets?",
+    "expected_source": "vendor_service_levels.txt",
+    "expected_section_contains": "1. Critical Incident Service Levels",
+    "should_answer": true,
+    "required_groups": [
+      [
+        "30 minutes",
+        "half an hour"
+      ],
+      [
+        "4 hours",
+        "four hours"
+      ]
+    ],
+    "evidence_groups": [
+      [
+        "30 minutes"
+      ],
+      [
+        "4 hours"
+      ]
+    ]
+  },
+  {
+    "id": "vendor_invoice_timing",
+    "question": "When must a vendor submit an invoice after month-end, and when is an approved invoice paid?",
+    "expected_source": "vendor_invoice_terms.txt",
+    "expected_section_contains": "1. Vendor Invoicing and Subcontracting",
+    "should_answer": true,
+    "required_groups": [
+      [
+        "5 business days",
+        "five business days"
+      ],
+      [
+        "30 calendar days",
+        "30 days",
+        "thirty days"
+      ]
+    ],
+    "evidence_groups": [
+      [
+        "5 business days"
+      ],
+      [
+        "30 calendar days"
+      ]
+    ]
+  },
+  {
+    "id": "vendor_subcontractor_approval",
+    "question": "Can a vendor appoint a subcontractor without prior written approval?",
+    "expected_source": "vendor_invoice_terms.txt",
+    "expected_section_contains": "1. Vendor Invoicing and Subcontracting",
+    "should_answer": true,
+    "required_groups": [
+      [
+        "cannot appoint",
+        "not permitted",
+        "must obtain prior written approval",
+        "no, the vendor cannot",
+        "must obtain the customer's prior written approval",
+        "no. the vendor must obtain"
+      ],
+      [
+        "prior written approval",
+        "written approval"
+      ]
+    ],
+    "evidence_groups": [
+      [
+        "must obtain the customer's prior written approval",
+        "prior written approval"
+      ],
+      [
+        "subcontractor"
+      ]
+    ]
+  },
+  {
+    "id": "missing_bonus_percentage",
+    "question": "What guaranteed annual bonus percentage does every employee receive?",
+    "should_answer": false,
+    "required_groups": [],
+    "evidence_groups": []
+  },
+  {
+    "id": "missing_vendor_penalty",
+    "question": "What exact monetary fine is charged if the vendor misses the critical restoration target?",
+    "should_answer": false,
+    "required_groups": [],
+    "evidence_groups": []
+  },
+  {
+    "id": "missing_registered_office",
+    "question": "What is the company's registered office street address?",
+    "should_answer": false,
+    "required_groups": [],
+    "evidence_groups": []
+  }
+]

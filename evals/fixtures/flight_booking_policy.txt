@@ -1,0 +1,2 @@
+1. Economy Flight Booking
+Business flights must be booked in economy class. Reservations should be made at least 7 calendar days before departure. A booking made fewer than 7 days in advance requires written approval from a vice president before purchase. The policy does not specify a cash reimbursement for voluntarily upgrading to a higher class.

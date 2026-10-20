@@ -1,0 +1,2 @@
+1. Customer Data Handling
+Customer records must not be copied to personal devices or unapproved cloud storage. Suspected data-security incidents must be reported to the Security team within 1 hour of discovery. Only approved company systems may be used to store or transmit customer data, including when employees work remotely.

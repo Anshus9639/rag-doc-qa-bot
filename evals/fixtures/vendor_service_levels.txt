@@ -1,0 +1,2 @@
+1. Critical Incident Service Levels
+For a critical incident, the vendor must acknowledge receipt within 30 minutes of notification. The restoration target is within 4 hours from acknowledgement. The clock starts when the vendor receives the incident notification.
