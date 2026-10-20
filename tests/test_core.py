@@ -4,7 +4,7 @@ import pytest
 from src import pipeline as pipeline_module
 from src import vector_store as vector_store_module
 from src.chunking import Chunk, chunk_pages
-from src.loaders import DocumentLoadError, DocumentPage, load_document
+from src.loaders import DocumentLoadError, DocumentPage, load_document, _normalize_pdf_text
 from src.pipeline import RAGPipeline
 from src.prompts import NOT_FOUND_MESSAGE, format_context
 from src.retriever import RetrievalResult
@@ -371,3 +371,21 @@ def test_citation_snippet_focuses_on_relevant_evidence():
     assert len(citations) == 1
     assert "volume of work" in citations[0].snippet.lower()
     assert "does not give guarantee" in citations[0].snippet.lower()
+
+
+def test_pdf_normalizer_repairs_known_split_words():
+    extracted = (
+        "The First Party does not give guarant ee "
+        "any volume of work. "
+        "T he First Party may distribute work. "
+        "All payment shall be subject to the agreement."
+    )
+
+    cleaned = _normalize_pdf_text(extracted)
+
+    assert "does not give guarantee" in cleaned
+    assert "The First Party may distribute work" in cleaned
+    assert "payment shall be subject" in cleaned
+
+    assert "guarant ee" not in cleaned
+    assert "T he First Party" not in cleaned
