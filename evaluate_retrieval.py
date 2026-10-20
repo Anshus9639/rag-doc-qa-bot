@@ -18,22 +18,12 @@ CASES_PATH = BASE_DIR / "evals" / "cases.json"
 
 
 def normalize(text: str) -> str:
-    """Normalize whitespace and casing for phrase matching."""
+    """Normalize whitespace and case for reliable metadata matching."""
     return re.sub(r"\s+", " ", text).casefold().strip()
 
 
-def matches_groups(text: str, groups: list[list[str]]) -> bool:
-    """Each group must have at least one matching phrase."""
-    text = normalize(text)
-
-    return all(
-        any(normalize(term) in text for term in group)
-        for group in groups
-    )
-
-
 def retrieve_hybrid(pipeline, question, source):
-    """Reproduce the pipeline's retrieval precedence without calling Ollama."""
+    """Reproduce the pipeline's retrieval order without calling Ollama."""
     store = pipeline.store
     sources = {source}
 
@@ -66,9 +56,9 @@ def retrieve_hybrid(pipeline, question, source):
             return selected, "numbered-clause"
 
     # 3. Keyword retrieval
-    keywords = _keyword_chunks(store, question, sources)
-    if keywords:
-        return [chunk for chunk, _score in keywords], "keyword"
+    keyword_hits = _keyword_chunks(store, question, sources)
+    if keyword_hits:
+        return [chunk for chunk, _score in keyword_hits], "keyword"
 
     # 4. Semantic retrieval
     result = retrieve(
@@ -95,43 +85,44 @@ def main():
     hit_at_3 = 0
     reciprocal_ranks = []
 
-    print("RAG Retrieval Evaluation")
+    print("RAG Retrieval Evaluation — Page/Section Targets")
     print(f"Indexed documents: {documents}\n")
 
-    # Positive cases need annotated evidence. Refusal cases are evaluated
-    # separately by evaluate_rag.py.
     for case in cases:
         if not case.get("should_answer", False):
             continue
 
         case_id = case["id"]
         source = case["source"]
-        evidence_groups = case.get("evidence_groups", [])
+        expected_page = case.get("expected_page")
+        expected_section = case.get("expected_section_contains")
 
         if source not in documents:
             print(f"SKIP {case_id}: source is not indexed")
             skipped += 1
             continue
 
-        if not evidence_groups:
-            print(f"SKIP {case_id}: no evidence labels defined")
+        if expected_page is None or not expected_section:
+            print(f"SKIP {case_id}: expected page/section label is missing")
             skipped += 1
             continue
 
-        # The "gold" chunks are annotated by matching the expected
-        # evidence phrases against the actual indexed document chunks.
+        # Ground-truth labels are based on annotated page and section,
+        # not on matching the question's keywords against chunk text.
         gold = [
             chunk
             for chunk in pipeline.store.chunks
             if chunk.source == source
-            and matches_groups(chunk.text, evidence_groups)
+            and chunk.page == expected_page
+            and normalize(expected_section)
+            in normalize(chunk.section or "")
         ]
 
         if not gold:
             print(
-                f"ANNOTATION ERROR {case_id}: no indexed chunk contains "
-                "all expected evidence groups. Review the labels or "
-                "document extraction before interpreting retrieval metrics."
+                f"ANNOTATION ERROR {case_id}: no indexed chunk matches "
+                f"page {expected_page}, section '{expected_section}'. "
+                "Verify the PDF page numbering and section metadata."
             )
             skipped += 1
             continue
@@ -149,7 +140,6 @@ def main():
             skipped += 1
             continue
 
-        # Rank is 1-based. A missing relevant chunk has reciprocal rank 0.
         ranks = [
             rank
             for rank, chunk in enumerate(hits, start=1)
@@ -164,25 +154,25 @@ def main():
             1 / first_rank if first_rank is not None else 0.0
         )
 
-        status = "HIT" if first_rank is not None else "MISS"
-
-        print(f"{status} {case_id}")
+        print(f"{'HIT' if first_rank else 'MISS'} {case_id}")
         print(f"  Retrieval route: {route}")
-        print(f"  Relevant gold chunks: {len(gold)}")
+        print(f"  Expected page: {expected_page}")
+        print(f"  Expected section: {expected_section}")
+        print(f"  Matching target chunks: {len(gold)}")
         print(f"  Retrieved chunks: {len(hits)}")
-        print(f"  First relevant rank: {first_rank or 'not retrieved'}")
+        print(f"  First target rank: {first_rank or 'not retrieved'}")
 
-        if hits:
-            for rank, chunk in enumerate(hits[:3], start=1):
-                marker = "*" if chunk.chunk_id in gold_ids else " "
-                print(
-                    f"  {marker} Rank {rank}: page={chunk.page}, "
-                    f"section={chunk.section}"
-                )
+        for rank, chunk in enumerate(hits[:3], start=1):
+            marker = "*" if chunk.chunk_id in gold_ids else " "
+            print(
+                f"  {marker} Rank {rank}: page={chunk.page}, "
+                f"section={chunk.section}"
+            )
 
         print()
 
     print("=" * 48)
+    print(f"Answerable cases configured: {sum(bool(c.get('should_answer')) for c in cases)}")
     print(f"Cases evaluated: {evaluated}")
     print(f"Cases skipped: {skipped}")
 

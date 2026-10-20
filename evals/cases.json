@@ -8,9 +8,11 @@
       ["volume of work", "minimum volume", "minimum work"]
     ],
     "evidence_groups": [
-      ["does not give guarantee", "does not guarantee","does not give guarant", "no guarantee"],
+      ["does not give guarantee", "does not guarantee", "does not give guarant", "no guarantee"],
       ["volume of work"]
     ],
+    "expected_page": 3,
+    "expected_section_contains": "4. RIGHTS & OBLIGATIONS OF BOTH PARTIES",
     "should_answer": true
   },
   {
@@ -25,6 +27,8 @@
       ["distribute work", "distribute the work", "distribution of work"],
       ["other contractors", "other contractor"]
     ],
+    "expected_page": 3,
+    "expected_section_contains": "4. RIGHTS & OBLIGATIONS OF BOTH PARTIES",
     "should_answer": true
   },
   {
@@ -39,6 +43,8 @@
       ["workforce", "work force"],
       ["job assigned", "jobs assigned", "jobs assigned by first party", "assigned by first party"]
     ],
+    "expected_page": 2,
+    "expected_section_contains": "1. OFFER & ACCEPTANCE",
     "should_answer": true
   },
   {
@@ -53,6 +59,8 @@
       ["haryana"],
       ["courts of law", "court", "jurisdiction"]
     ],
+    "expected_page": 11,
+    "expected_section_contains": "23. JURISDICTION",
     "should_answer": true
   },
   {
