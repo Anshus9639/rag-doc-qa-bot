@@ -57,13 +57,26 @@ def _merge(pieces: list[str], size: int, overlap: int) -> list[str]:
     return [c for c in chunks if c]
 
 
-def _find_headings(text: str) -> list[str]:
-    headings = []
+def _is_heading(line: str) -> bool:
+    return (
+        bool(line)
+        and len(line) <= 80
+        and (not line.endswith(".") or line.isupper())
+        and bool(HEADING_RE.match(line))
+    )
+
+
+def _split_at_headings(text: str) -> list[tuple[str | None, str]]:
+    """Split page text into (heading, body) segments; a new segment starts at each heading."""
+    segments: list[list] = []
     for line in text.splitlines():
-        line = line.strip()
-        if line and len(line) <= 80 and (not line.endswith(".") or line.isupper()) and HEADING_RE.match(line):
-            headings.append(line)
-    return headings
+        if _is_heading(line.strip()):
+            segments.append([line.strip(), [line]])
+        elif segments:
+            segments[-1][1].append(line)
+        else:
+            segments.append([None, [line]])
+    return [(heading, "\n".join(lines).strip()) for heading, lines in segments]
 
 
 def chunk_pages(
@@ -71,7 +84,7 @@ def chunk_pages(
     chunk_size: int = CHUNK_SIZE,
     overlap: int = CHUNK_OVERLAP,
 ) -> list[Chunk]:
-    """Turn the pages of ONE document into chunks with metadata."""
+    """Turn the pages of ONE document into chunks; a chunk never spans two headings."""
     if overlap >= chunk_size:
         raise ValueError("CHUNK_OVERLAP must be smaller than CHUNK_SIZE.")
 
@@ -79,21 +92,19 @@ def chunk_pages(
     current_section = None  # heading carried forward across chunks and pages
 
     for page in pages:
-        pieces = _split(page.text, chunk_size, SEPARATORS)
-        for text in _merge(pieces, chunk_size, overlap):
-            headings = _find_headings(text)
-            label = headings[0] if headings else current_section
-            if headings:
-                current_section = headings[-1]
-            chunks.append(
-                Chunk(
-                    text=text,
-                    source=page.source,
-                    page=page.page,
-                    chunk_id=f"{page.source}#{len(chunks)}",
-                    section=label,
+        for heading, body in _split_at_headings(page.text):
+            if heading:
+                current_section = heading
+            for text in _merge(_split(body, chunk_size, SEPARATORS), chunk_size, overlap):
+                chunks.append(
+                    Chunk(
+                        text=text,
+                        source=page.source,
+                        page=page.page,
+                        chunk_id=f"{page.source}#{len(chunks)}",
+                        section=current_section,
+                    )
                 )
-            )
 
     logger.info("Created %d chunk(s) (size=%d, overlap=%d)", len(chunks), chunk_size, overlap)
     return chunks
